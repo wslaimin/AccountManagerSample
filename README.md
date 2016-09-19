@@ -1,0 +1,2 @@
+# AccountManagerSample
+AccountManager和AbstractAuthenticator使用
