@@ -12,6 +12,8 @@ import android.text.TextUtils;
 
 import com.loopj.android.http.SyncHttpClient;
 
+import java.util.Random;
+
 /**
  * Created by 10528 on 2016/9/19.
  */
@@ -47,9 +49,10 @@ public class MyAuthenticator extends AbstractAccountAuthenticator{
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
         //可以请求服务器获取token,这里为了简单直接返回
         Bundle bundle;
-        if(!authTokenType.equals(Constants.ACCOUNT_TYPE)){
+        if(!authTokenType.equals(Constants.AUTH_TOKEN_TYPE)){
             bundle=new Bundle();
-            //TODO:没有error_code的情况
+            //没有error_code的情况,不会抛出异常
+            bundle.putInt(AccountManager.KEY_ERROR_CODE,1);
             bundle.putString(AccountManager.KEY_ERROR_MESSAGE,"invalid authToken");
             return bundle;
         }
@@ -58,8 +61,12 @@ public class MyAuthenticator extends AbstractAccountAuthenticator{
         String psw=am.getPassword(account);
         if(!TextUtils.isEmpty(psw)){
             //链接服务器获取token
+            Random random=new Random();
             bundle=new Bundle();
-            bundle.putString(AccountManager.KEY_AUTHTOKEN,"123456");
+            bundle.putString(AccountManager.KEY_AUTHTOKEN,random.nextLong()+"");
+            //不返回name和type会报错“the type and name should not be empty”
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE,account.type);
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME,account.name);
             return bundle;
         }
 

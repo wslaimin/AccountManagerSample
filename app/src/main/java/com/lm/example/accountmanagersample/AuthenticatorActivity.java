@@ -4,6 +4,10 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,6 +30,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +54,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         mManager = AccountManager.get(this);
 
         mEditName = (EditText) findViewById(R.id.edit_name);
-        mEditName = (EditText) findViewById(R.id.edit_psw);
+        mEditPsw = (EditText) findViewById(R.id.edit_psw);
         mTextRegister = (TextView) findViewById(R.id.text_register);
         mBtnLogin = (Button) findViewById(R.id.button_login);
 
@@ -78,10 +83,22 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                 }
                 //可以请求服务器获取token
                 Account account=new Account(name,Constants.ACCOUNT_TYPE);
-                Bundle options=new Bundle();
-                options.putString(AccountManager.KEY_AUTHTOKEN,"123467");
-                mManager.getAuthToken()
-                setAccountAuthenticatorResult();
+                AccountManagerCallback<Bundle> callback=new AccountManagerCallback<Bundle>() {
+                    @Override
+                    public void run(AccountManagerFuture<Bundle> future) {
+                        try {
+                            String token=future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+                            Intent intent=new Intent(AuthenticatorActivity.this,WelcomeActivity.class);
+                            Account account1=new Account(future.getResult().getString(AccountManager.KEY_ACCOUNT_NAME),
+                                    future.getResult().getString(AccountManager.KEY_ACCOUNT_TYPE));
+                            intent.putExtra(WelcomeActivity.KEY_ACCOUNT,account1);
+                            startActivity(intent);
+                        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                mManager.getAuthToken(account,Constants.AUTH_TOKEN_TYPE,null,AuthenticatorActivity.this,callback,null);
             }
         });
 

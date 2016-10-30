@@ -54,6 +54,7 @@ public class RegisterActivity extends AppCompatActivity{
                 Account account=new Account(name,Constants.ACCOUNT_TYPE);
                 AccountManager am=AccountManager.get(v.getContext());
                 am.addAccountExplicitly(account,psw,null);
+                finish();
             }
         });
     }
