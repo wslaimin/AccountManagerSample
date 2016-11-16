@@ -11,7 +11,7 @@
         android:inputType="number"/>
 
     <ImageButton
-        android:id="@+id/image_all"
+        android:id="@+id/button_all"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_toRightOf="@id/edit_name"
